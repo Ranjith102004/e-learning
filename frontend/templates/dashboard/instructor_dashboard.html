@@ -1,0 +1,29 @@
+{% extends 'base/base.html' %}
+{% block title %}Instructor Dashboard{% endblock %}
+
+{% block content %}
+<h2>Instructor Dashboard</h2>
+
+<a href="{% url 'dashboard:create_course' %}" class="btn btn-success mb-3">
+Create Course
+</a>
+
+<table class="table table-bordered">
+<thead>
+<tr>
+  <th>Course</th>
+  <th>Students</th>
+  <th>Revenue</th>
+</tr>
+</thead>
+<tbody>
+{% for item in courses %}
+<tr>
+  <td>{{ item.course.title }}</td>
+  <td>{{ item.students }}</td>
+  <td>₹{{ item.revenue }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}
