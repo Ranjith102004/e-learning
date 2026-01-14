@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import Enrollment, LessonProgress
+from .models import Enrollment
 
 
 admin.site.register(Enrollment)
-admin.site.register(LessonProgress)

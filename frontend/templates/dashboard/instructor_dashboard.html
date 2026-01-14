@@ -1,29 +1,46 @@
 {% extends 'base/base.html' %}
-{% block title %}Instructor Dashboard{% endblock %}
 
 {% block content %}
-<h2>Instructor Dashboard</h2>
+{% include 'base/sidebar.html' %}
 
-<a href="{% url 'dashboard:create_course' %}" class="btn btn-success mb-3">
-Create Course
-</a>
+{% block sidebar_content %}
+<h3 class="fw-bold mb-4">Instructor Dashboard</h3>
 
-<table class="table table-bordered">
-<thead>
-<tr>
-  <th>Course</th>
-  <th>Students</th>
-  <th>Revenue</th>
-</tr>
-</thead>
-<tbody>
-{% for item in courses %}
-<tr>
-  <td>{{ item.course.title }}</td>
-  <td>{{ item.students }}</td>
-  <td>₹{{ item.revenue }}</td>
-</tr>
-{% endfor %}
-</tbody>
+<div class="row g-4">
+    <div class="col-md-3">
+        <div class="card shadow-sm p-3 text-center">
+            <h6>Total Courses</h6>
+            <h2 class="text-primary">{{ courses|length }}</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm p-3 text-center">
+            <h6>Total Students</h6>
+            <h2 class="text-success">120</h2>
+        </div>
+    </div>
+</div>
+
+<hr>
+
+<table class="table bg-white shadow-sm mt-3">
+    <thead class="table-light">
+        <tr>
+            <th>Course</th>
+            <th>Students</th>
+            <th>Revenue</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in courses %}
+        <tr>
+            <td>{{ item.course.title }}</td>
+            <td>{{ item.students }}</td>
+            <td>₹{{ item.revenue }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
+{% endblock %}
 {% endblock %}

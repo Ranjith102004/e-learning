@@ -85,14 +85,21 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# DB config loaded from environment for safety (see .env.example)
+DB_NAME = os.environ.get('MYSQL_DB', 'edutech_db')
+DB_USER = os.environ.get('MYSQL_USER', 'edutech_user')
+DB_PASSWORD = os.environ.get('MYSQL_PASSWORD', 'Edtech@123')
+DB_HOST = os.environ.get('MYSQL_HOST', 'localhost')
+DB_PORT = os.environ.get('MYSQL_PORT', '3306')
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'edutech_db',
-        'USER': 'edutech_user',
-        'PASSWORD': 'password',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'NAME': DB_NAME,
+        'USER': DB_USER,
+        'PASSWORD': DB_PASSWORD,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },

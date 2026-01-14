@@ -4,14 +4,12 @@ from django.http import HttpResponseForbidden
 
 def instructor_required(view_func):
     def wrapper(request, *args, **kwargs):
-        user = getattr(request, 'user', None)
+        user = request.user
 
-        # Not logged in
-        if not user or not user.is_authenticated:
-            return redirect('login')
+        if not user.is_authenticated:
+            return redirect('accounts:login')
 
-        # Logged in but not instructor
-        if not getattr(user, 'is_instructor', False):
+        if not user.is_instructor:
             return HttpResponseForbidden(
                 "You are not allowed to access this page."
             )
