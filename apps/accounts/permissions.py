@@ -1,19 +1,14 @@
-from django.shortcuts import redirect
-from django.http import HttpResponseForbidden
-
+from django.core.exceptions import PermissionDenied
+from django.contrib.auth.decorators import login_required
+from functools import wraps
 
 def instructor_required(view_func):
+    # Use standard login_required first to handle the redirect logic
+    @login_required(login_url='accounts:login')
+    @wraps(view_func)
     def wrapper(request, *args, **kwargs):
-        user = request.user
-
-        if not user.is_authenticated:
-            return redirect('accounts:login')
-
-        if not user.is_instructor:
-            return HttpResponseForbidden(
-                "You are not allowed to access this page."
-            )
-
+        if not request.user.is_instructor:
+            # This triggers the standard 403 error handler
+            raise PermissionDenied
         return view_func(request, *args, **kwargs)
-
     return wrapper

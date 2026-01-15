@@ -3,22 +3,63 @@
 
 {% block content %}
 <div class="row justify-content-center">
-  <div class="col-md-4">
-    <h3 class="mb-3">Register</h3>
+  <div class="col-md-5">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h3 class="mb-3 fw-bold">Create an Account</h3>
 
-    <form method="post">
-      {% csrf_token %}
-      <input type="text" name="username" class="form-control mb-2" placeholder="Username">
-      <input type="email" name="email" class="form-control mb-2" placeholder="Email">
-      <input type="password" name="password" class="form-control mb-2" placeholder="Password">
+        <form method="post" novalidate>
+          {% csrf_token %}
 
-      <div class="form-check mb-2">
-        <input class="form-check-input" type="checkbox" name="is_instructor">
-        <label class="form-check-label">Register as Instructor</label>
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+              {% for error in form.non_field_errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          {% for field in form %}
+            <div class="mb-3">
+              {% if field.name == 'is_instructor' %}
+                <div class="form-check">
+                  {{ field }}
+                  <label class="form-check-label" for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                  </label>
+                </div>
+              {% else %}
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                
+                <input type="{{ field.field.widget.input_type }}" 
+                       name="{{ field.name }}" 
+                       id="{{ field.id_for_label }}" 
+                       class="form-control {% if field.errors %}is-invalid{% endif %}"
+                       value="{{ field.value|default_if_none:'' }}">
+              {% endif %}
+
+              {% if field.errors %}
+                <div class="invalid-feedback d-block">
+                  {% for error in field.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+
+              {% if field.help_text %}
+                <div class="form-text text-muted">{{ field.help_text }}</div>
+              {% endif %}
+            </div>
+          {% endfor %}
+
+          <button type="submit" class="btn btn-primary w-100 btn-lg mt-2">Register</button>
+        </form>
+        
+        <p class="text-center mt-3">
+            Already have an account? <a href="{% url 'accounts:login' %}">Login here</a>.
+        </p>
       </div>
-
-      <button class="btn btn-primary w-100">Create Account</button>
-    </form>
+    </div>
   </div>
 </div>
 {% endblock %}

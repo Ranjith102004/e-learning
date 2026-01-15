@@ -2,17 +2,53 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
+<div class="row justify-content-center mt-5">
   <div class="col-md-4">
-    <h3 class="mb-3">Login</h3>
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h3 class="mb-4 fw-bold text-center">Login</h3>
 
-    <form method="post">
-      {% csrf_token %}
-      <input type="text" name="username" class="form-control mb-2" placeholder="Username">
-      <input type="password" name="password" class="form-control mb-2" placeholder="Password">
+        <form method="post">
+          {% csrf_token %}
 
-      <button class="btn btn-dark w-100">Login</button>
-    </form>
+          <input type="hidden" name="next" value="{{ request.GET.next }}">
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+              {% for error in form.non_field_errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <div class="mb-3">
+            <label class="form-label">Username</label>
+            {{ form.username }} 
+            </div>
+
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            {{ form.password }}
+          </div>
+
+          <button class="btn btn-dark w-100 btn-lg">Login</button>
+        </form>
+
+        <p class="text-center mt-3">
+            Don't have an account? <a href="{% url 'accounts:register' %}">Register here</a>.
+        </p>
+      </div>
+    </div>
   </div>
 </div>
+
+<script>
+    document.querySelectorAll('input, select, textarea').forEach(function(input) {
+        if (input.type !== 'checkbox' && input.type !== 'hidden') {
+            input.classList.add('form-control');
+        } else if (input.type === 'checkbox') {
+            input.classList.add('form-check-input');
+        }
+    });
+</script>
 {% endblock %}
