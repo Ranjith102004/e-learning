@@ -1,7 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
 from django.utils.text import slugify
-from .models import Course
+
+from apps.accounts.permissions import instructor_required
+from .models import Course, Lesson
+from .forms import CourseForm, LessonForm
 from apps.dashboard.models import CourseContent
 
 
@@ -21,32 +25,46 @@ def course_detail(request, course_id):
     })
 
 
-@login_required
+@instructor_required
 def create_course(request):
-    if not getattr(request.user, 'is_instructor', False):
-        return redirect('home')
+    if request.method == 'POST':
+        form = CourseForm(request.POST, request.FILES)
+        if form.is_valid():
+            course = form.save(commit=False)
+            course.instructor = request.user
+            course.save()
+            return redirect('courses:add_lesson', course_id=course.id)
+    else:
+        form = CourseForm()
+
+    return render(request, 'courses/create_course.html', {'form': form})
+
+
+@instructor_required
+def add_lesson(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+
+    # SECURITY CHECK: Ensure the logged-in user owns this course
+    if course.instructor != request.user:
+        return HttpResponseForbidden("You cannot add lessons to someone else's course.")
 
     if request.method == 'POST':
-        title = request.POST.get('title')
-        description = request.POST.get('description', '')
-        price = request.POST.get('price')
-        slug = slugify(title)
-        category = request.POST.get('category', 'Programming')
-        level = request.POST.get('level', 'beginner')
+        form = LessonForm(request.POST, request.FILES)
+        if form.is_valid():
+            lesson = form.save(commit=False)
+            lesson.course = course
+            lesson.save()
+            return redirect('courses:add_lesson', course_id=course.id)
+    else:
+        form = LessonForm()
 
-        course = Course.objects.create(
-            instructor=request.user,
-            title=title,
-            slug=slug,
-            category=category,
-            level=level,
-            price=price,
-            is_published=True
-        )
+    # Get existing lessons to show a list below the form
+    lessons = course.lessons.all()
 
-        # create empty CourseContent document in Mongo
-        CourseContent(course_id=course.id, modules=[]).save()
-
-        return redirect('dashboard')
+    return render(request, 'courses/add_lesson.html', {
+        'form': form,
+        'course': course,
+        'lessons': lessons
+    })
 
     return render(request, 'dashboard/create_course.html')

@@ -1,7 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
-from apps.accounts.models import User
-
+from django.conf import settings
 
 class Course(models.Model):
     LEVEL_CHOICES = (
@@ -12,6 +11,7 @@ class Course(models.Model):
 
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True)
+    description = models.TextField(blank=True)
     category = models.CharField(
         max_length=100,
         default="Programming"
@@ -22,7 +22,8 @@ class Course(models.Model):
         default="beginner"
     )
     price = models.DecimalField(max_digits=8, decimal_places=2)
-    instructor = models.ForeignKey(User, on_delete=models.CASCADE)
+    thumbnail = models.ImageField(upload_to='thumbnails/', blank=True, null=True)
+    instructor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     is_published = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -40,3 +41,17 @@ class Course(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Lesson(models.Model):
+    course = models.ForeignKey(Course, related_name='lessons', on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    video = models.FileField(upload_to='course_videos/', help_text="Upload .mp4 or .mov files")
+    duration = models.DurationField(null=True, blank=True, help_text="e.g. 00:10:00")
+    order = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return f"{self.order}. {self.title}"
